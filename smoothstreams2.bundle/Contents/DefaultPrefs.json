@@ -2,55 +2,29 @@
 	{
 		"id": "serverLocation",
 		"type": "enum",
-        "label": "Select Server Location (NA/EU/Asia)",
-        "values": ["None", "EU Random","EU DE-Frankfurt","EU NL-EVO","EU NL-i3d","EU UK-London","EU UK-London2","US All","US East","US West","US East-NJ","US East-VA","US East-CAN","US East-CAN2","Asia"],
-        "default": "None"
+		"label": "Select Server Location (NA/EU/Asia)",
+		"values": ["None", "EU Random","EU DE-Frankfurt","EU NL-EVO","EU NL-i3d","EU UK-London","EU UK-London2","US All","US East","US West","US East-NJ","US East-VA","US East-CAN","US East-CAN2","Asia"],
+		"default": "None"
 	},
 	{
 		"id": "username",
 		"type": "text",
-        "label": "User Name",
-        "default": ""
+		"label": "User Name",
+		"default": ""
 	},
 	{
 		"id": "password",
 		"type": "text",
 		"option": "hidden",
-        "label": "Password",
-        "default": ""
+		"label": "Password",
+		"default": ""
 	},
 	{
 		"id": "service",
 		"type": "enum",
-        "label": "Service",
+		"label": "Service",
 		"values": ["None","MyStreams","Live247","StarStreams","StreamTVNow"],
-        "default": "None"
-	},
-	{
-		"id": "dateFormat",
-		"type": "enum",
-        "label": "Select Date Format",
-        "values": ["%Y-%m-%d", "%m/%d", "%m/%d", "%d-%m"],
-        "default": "%m-%d"
-	},
-	{
-		"id": "timeFormat",
-		"type": "enum",
-        "label": "Select Time Format",
-        "values": ["%H:%M", "%I:%M %p", "%H:%M %Z", "%I:%M %p %Z"],
-        "default": "%H:%M"
-	},
-	{
-		"id": "pageCount",
-		"type": "text",
-		"label": "Items Per Page",
-		"default": "50"
-	},
-	{
-		"id": "numChannels",
-		"type": "text",
-		"label": "Number of Channels",
-		"default": "120"
+		"default": "None"
 	},
 	{
 		"id": "mySearch",
@@ -81,5 +55,17 @@
 		"type": "bool",
 		"label": "Show Thumbnails? (Disable to improve Android Experience)",
 		"default": "True"
+	},
+	{
+		"id": "pageCount",
+		"type": "text",
+		"label": "Items Per Page",
+		"default": "50"
+	},
+	{
+		"id": "numChannels",
+		"type": "text",
+		"label": "Number of Channels",
+		"default": "120"
 	}
 ]

@@ -70,22 +70,6 @@ def GetDstStart():
 	delta = (13 - marDate.weekday())
 	return datetime.datetime(nowdate.year, nowdate.month, delta,2,0,0,0)
 
-def checkDateTimeFormats():
-	try:
-		if Prefs['dateFormat'] is None:
-			Prefs['dateFormat'] = "%Y-%m-%d"
-		if Prefs['timeFormat'] is None:
-			Prefs['timeFormat'] = "%H:%M"
-		if Dict['dateFormat'] is None:
-			Dict['dateFormat'] = "%Y-%m-%d"
-		if Dict['timeFormat'] is None:
-			Dict['timeFormat'] = "%H:%M"
-		Dict.Save()
-	except Exception as e:
-		Log.Error("Error checking/saving dateTimeFormat " + repr(e))
-
-	return True
-
 def GetServerUrlByName(serverLocation=None):
 	if serverLocation == 'EU Random':
 		return "deu.SmoothStreams.tv"
@@ -290,40 +274,6 @@ def GetVideoThumb(text=None):
 	else:
 		Thumb = R(re.sub('[^A-Za-z0-9]+', '', text) + 'v.png')
 		return Thumb
-
-def GetShowTimeTextOld(show):
-	""" Gets the text for showing a show's time block [HH:MM to HH:MM] """
-	timeString = u' ['
-	#if 'dateFormat' in Prefs:
-	#	dateFormat = Prefs['dateFormat']
-	#else:
-	dateFormat = '%m-%d'
-	#if 'timeFormat' in Prefs:
-	#	timeFormat = Prefs['timeFormat']
-	#else:
-	timeFormat = '%H:%M'
-
-	try:
-		parser = dateutil.parser()
-		startTime = GetDateTimeNative(show['time'])
-		endTime = GetDateTimeNative(show['end_time'])
-
-		if startTime.date() < (datetime.date.today() + datetime.timedelta(days=1)):
-			timeString += startTime.strftime(timeFormat)
-		else:
-			timeString += startTime.strftime(dateFormat + u' ' + timeFormat)
-
-		timeString += u' - '
-
-		if endTime.date() < (datetime.date.today() + datetime.timedelta(days=1)):
-			timeString += endTime.strftime(timeFormat)
-		else:
-			timeString += endTime.strftime(dateFormat + u' ' + timeFormat)
-	except Exception as e:
-		Log.Error('Exception getting DateTime string: tf-' + timeFormat + ' df-' + dateFormat + ' ss-' + show['time'] + ' se-' + show['end_time'] + repr(e))
-	timeString += u']'
-	
-	return timeString
 
 def GetShowTimeText(show):
 	timeString = u''
