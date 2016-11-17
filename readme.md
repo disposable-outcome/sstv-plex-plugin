@@ -15,17 +15,18 @@ This is an area where you can setup custom entries for the plugin's home page. T
 You can also use the following keywords:
 
  - NOW: Only return content that is currently on
+ - NEXT: Only return content that is starting in the next 90 minutes (can't be used at the same time as NOW)
  - HD: Only return content that is 720p or better
 
 #### Example
 ```
-NHL NOW HD;NFL;Movies HD;NOW HD
+NHL NOW HD;NFL;Movies NEXT HD;NOW HD
 ```
 
 Would make four entries.
     - All shows in the NHL category and any other shows with the term 'NHL' in the title or description only in HD
     - All shows in the NFL category and shows with the term 'NFL' in the title or description
-    - All shows in the Movies category that are HD
+    - All shows in the Movies category that are HD that start in the next 90 minutes
     - All shows that are currently on and are in HD
 
 ### HD Only?
