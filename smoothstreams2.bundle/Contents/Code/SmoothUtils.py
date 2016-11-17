@@ -259,21 +259,26 @@ def GetChannelSummaryText(channelInfo=None):
 	else:
 		return channelInfo
 
-def GetDirectoryThumb(text=None):
-	''' Cycles through possible thumbnail images from most specific (show name) to category to channel name '''
-	if Prefs['showThumbs']==False or text is None:
+def GetChannelThumb(chanNum = 0, chanName = "", category = "", large = False):
+	if Prefs['showThumbs']==False:
 		return None
 	else:
-		Thumb = R(re.sub('[^A-Za-z0-9]+', '', text) + '.png')
-		return Thumb
+		chanName = chanName.replace(" ", "")
+		if large:
+			chanAdd = "v"
+			fallBack = "https://dummyimage.com/195x110/000/ffffff&text=" + str(chanNum) + " " + chanName + " " + category.replace(" ", "+")
+		else:
+			chanAdd = ""
+			fallBack = "https://dummyimage.com/120x120/000/ffffff&text=" + str(chanNum) + " " + chanName + " " + category.replace(" ", "+")
 
-def GetVideoThumb(text=None):
-	''' Cycles through possible thumbnail images from most specific (show name) to category to channel name '''
-	if Prefs['showThumbs']==False or text is None:
-		return None
-	else:
-		Thumb = R(re.sub('[^A-Za-z0-9]+', '', text) + 'v.png')
-		return Thumb
+		thumb = None
+		if not category.replace(" ", "").lower() in ["", "tv", "generaltv"]:
+			thumb = R(re.sub('[^A-Za-z0-9]+', '', category) + '.png')
+		if thumb is None:
+			thumb = R(re.sub('[^A-Za-z0-9]+', '', chanName) + chanAdd + '.png')
+			if thumb is None and chanNum > 0:
+				thumb = fallBack
+		return thumb
 
 def GetShowTimeText(show):
 	timeString = u''
