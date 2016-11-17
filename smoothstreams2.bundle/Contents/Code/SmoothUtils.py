@@ -197,7 +197,7 @@ def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
 								show['category'] = u"NCAAF"
 							elif show['name'].find("Rugby") > -1 or show['description'].find("Rugby") > -1:
 								show['category'] = u"Rugby"
-							elif show['name'].find("FIFA") > -1 or show['name'].find("UEFA") > -1 or show['name'].find("EPL") > -1:
+							elif show['name'].find("FIFA") > -1 or show['name'].find("UEFA") > -1 or show['name'].find("EPL") > -1 or show['description'].find("FIFA") > -1 or show['name'].find("Soccer") > -1 or show['description'].find("Premier League") > -1:
 								show['category'] = u"World Football"
 							elif (show['name'].find("NBA") > -1 or show['description'].find("NBA") > -1 or channelName[:3] == 'NBA') and (show['name'].find("WNBA") == -1 or show['description'].find("WNBA") == -1):
 								show['category'] = u"NBA"
