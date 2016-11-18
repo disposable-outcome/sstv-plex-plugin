@@ -197,7 +197,7 @@ def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
 								show['category'] = u"NCAAF"
 							elif show['name'].find("Rugby") > -1 or show['description'].find("Rugby") > -1:
 								show['category'] = u"Rugby"
-							elif show['name'].find("FIFA") > -1 or show['name'].find("UEFA") > -1 or show['name'].find("EPL") > -1 or show['description'].find("FIFA") > -1 or show['name'].find("Soccer") > -1 or show['description'].find("Premier League") > -1:
+							elif show['name'].find("FIFA") > -1 or show['name'].find("UEFA") > -1 or show['name'].find("EPL") > -1 or show['description'].find("FIFA") > -1 or show['name'].find("Soccer") > -1 or show['description'].find("Premier League") > -1 or show['name'].find("Bundesliga") > -1 or show['description'].find("Bundesliga") > -1:
 								show['category'] = u"World Football"
 							elif (show['name'].find("NBA") > -1 or show['description'].find("NBA") > -1 or channelName[:3] == 'NBA') and (show['name'].find("WNBA") == -1 or show['description'].find("WNBA") == -1):
 								show['category'] = u"NBA"
@@ -263,6 +263,8 @@ def GetChannelThumb(chanNum = 0, chanName = "", category = "", large = False):
 	if Prefs['showThumbs']==False:
 		return None
 	else:
+		if " - " in chanName:
+			chanName = chanName.split(" - ")[1]
 		chanName = chanName.replace(" ", "")
 		if large:
 			chanAdd = "v"
@@ -273,7 +275,7 @@ def GetChannelThumb(chanNum = 0, chanName = "", category = "", large = False):
 
 		thumb = None
 		if not category.replace(" ", "").lower() in ["", "tv", "generaltv"]:
-			thumb = R(re.sub('[^A-Za-z0-9]+', '', category) + '.png')
+			thumb = R(re.sub('[^A-Za-z0-9]+', '', category) + chanAdd + '.png')
 		if thumb is None:
 			thumb = R(re.sub('[^A-Za-z0-9]+', '', chanName) + chanAdd + '.png')
 			if thumb is None and chanNum > 0:

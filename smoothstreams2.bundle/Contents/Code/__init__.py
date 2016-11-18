@@ -32,7 +32,7 @@ CHANNELS = {'01': 'Channel 01', '02':'Channel 02'}
 ORDERED_CHANNELS = ['01', '02']
 
 NAME = 'Smoothstreams2'
-ART  = 'art-default.jpg'
+ART  = 'art-default.png'
 ICON = 'icon-default.png'
 ####################################################################################################
 
@@ -78,10 +78,10 @@ def VideoMainMenu():
 		oc.add(PrefsObject(title = "Preferences", thumb = R("icon-prefs.png")))
 	else:
 		ObjectContainer.title1 = NAME
-		oc.add(DirectoryObject(key = Callback(LiveMenu), title = "Live", thumb = R("Channels.png"), summary = "Live"))
-		oc.add(DirectoryObject(key = Callback(ChannelsMenu), title = "Channels", thumb = R("Channels.png"), summary = "Channel List"))
-		oc.add(DirectoryObject(key = Callback(CategoriesMenu), title = "Category", thumb = R("Category.png"), summary = "Category List"))
-		oc.add(DirectoryObject(key = Callback(ScheduleListMenu), title = "Schedule", thumb = R("Schedule.png"), summary = "Schedule List"))
+		oc.add(DirectoryObject(key = Callback(LiveMenu), title = "Live", thumb = SmoothUtils.GetChannelThumb(chanName = "Live"), summary = "Live"))
+		oc.add(DirectoryObject(key = Callback(ChannelsMenu), title = "Channels", thumb = SmoothUtils.GetChannelThumb(chanName = "Channels"), summary = "Channel List"))
+		oc.add(DirectoryObject(key = Callback(CategoriesMenu), title = "Categories", thumb = SmoothUtils.GetChannelThumb(chanName = "Categories"), summary = "Category List"))
+		oc.add(DirectoryObject(key = Callback(ScheduleListMenu), title = "Schedule", thumb = SmoothUtils.GetChannelThumb(chanName = "Schedule"), summary = "Schedule List"))
 
 		# TODO: add custom categories
 		#for category in sorted(categoryDict):
@@ -151,14 +151,15 @@ def SearchShows(query):
 	for show in showsList:
 		channelNum = str(show['channel'])
 		channelItem = channelsDict[channelNum]
+		channelName = channelItem.name.replace("720P", "HD")
 		titleText = formatShowText(channelItem, show, currentTime, "{when} {title} {qual} {lang} {time} ({cat}) {chname} #{ch}")
 		channelUrl = SmoothUtils.GetFullUrlFromChannelNumber(channelNum)
-		thumb = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = formatShowText(channelItem, show, currentTime, "{chname}"), category = show['category'], large = False)
+		thumb = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = show['category'], large = False)
 
 		if Prefs['channelDetails']:
 			oc.add(DirectoryObject(key = Callback(PlayMenu, url = channelUrl, channelNum = channelNum), title = titleText, thumb = thumb))
 		elif SmoothUtils.GetDateTimeNative(show['time']) < currentTime:
-			thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = formatShowText(channelItem, show, currentTime, "{chname}"), category = show['category'], large = True)
+			thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = show['category'], large = True)
 			oc.add(VideoClipObject(
 				key = Callback(CreateVideoClipObject, url = HTTPLiveStreamURL(SmoothUtils.GetFullUrlFromChannelNumber(channelNum)), title = titleText, thumb = thumbV, container = True),
 				url = SmoothUtils.GetFullUrlFromChannelNumber(channelNum),
@@ -173,10 +174,11 @@ def SearchShows(query):
 				]
 				))
 		else:
+			thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = show['category'], large = True)
 			oc.add(CreateVideoClipObject(
 				url = SmoothUtils.GetFullUrlFromChannelNumber(channelNum) + "&" + show['id'] + "&tm=" + str(show['time']).replace(" ", ""),
 				title = SmoothUtils.fix_text(titleText),
-				thumb = thumb
+				thumb = thumbV
 			))
 
 		showCount += 1
@@ -204,7 +206,7 @@ def ChannelsMenu(url = None):
 	for channelNum in range(1, MAX_CHAN + 1):
 		if not channelsDict is None and str(channelNum) in channelsDict:
 			channelItem = channelsDict[str(channelNum)]
-			#channel = channelItem.name # get channel title
+			channelName = channelItem.name.replace("720P", "HD")
 			nowPlaying = channelItem.NowPlaying()
 			upcoming = channelItem.Upcoming()
 			if not upcoming is None and len(upcoming) > 0:
@@ -219,13 +221,13 @@ def ChannelsMenu(url = None):
 			if not upcoming is None:
 				summaryText = formatShowText(channelItem, upcoming, currentTime, "{when} {title} {qual} {lang} {time} ({cat})")
 
-			thumb = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = formatShowText(channelItem, nowPlaying, currentTime, "{chname}"), category = category, large = False)
+			thumb = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = category, large = False)
 			
 			if Prefs['channelDetails']:
 				channelUrl = SmoothUtils.GetFullUrlFromChannelNumber(channelNum)
 				oc.add(DirectoryObject(key = Callback(PlayMenu, url = channelUrl, channelNum = channelNum), title = SmoothUtils.fix_text(titleText), thumb = thumb))
 			else:
-				thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = formatShowText(channelItem, nowPlaying, currentTime, "{chname}"), category = category, large = True)
+				thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = category, large = True)
 				oc.add(VideoClipObject(
 					key = Callback(CreateVideoClipObject, url = HTTPLiveStreamURL(SmoothUtils.GetFullUrlFromChannelNumber(channelNum)), title = SmoothUtils.fix_text(titleText), thumb = thumbV, container = True),
 					url = SmoothUtils.GetFullUrlFromChannelNumber(channelNum),
@@ -270,18 +272,19 @@ def LiveMenu(url = None):
 		else:
 			thumbText = show['category']
 		channelItem = channelsDict[str(channelNum)]
+		channelName = channelItem.name.replace("720P", "HD")
 		channelText2 = channelItem.GetStatusText2()
 
 		titleText = formatShowText(channelItem, show, currentTime, "{cat} {title} {qual} {lang} {time} {chname} #{ch}")
 
 		artUrl = 'http://smoothstreams.tv/schedule/includes/images/uploads/8ce52ab224906731eaed8497eb1e8cb4.png'
 		channelUrl = SmoothUtils.GetFullUrlFromChannelNumber(channelNum)
-		thumb = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = formatShowText(channelItem, show, currentTime, "{chname}"), category = show['category'], large = False)
+		thumb = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = show['category'], large = False)
 
 		if Prefs['channelDetails']:
 			oc.add(DirectoryObject(key = Callback(PlayMenu, url = channelUrl, channelNum = channelNum), title = titleText, thumb = thumb))
 		else:
-			thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = formatShowText(channelItem, show, currentTime, "{chname}"), category = show['category'], large = True)
+			thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = show['category'], large = True)
 			oc.add(VideoClipObject(
 				key = Callback(CreateVideoClipObject, url = HTTPLiveStreamURL(SmoothUtils.GetFullUrlFromChannelNumber(channelNum)), title = titleText, thumb = thumbV, container = True),
 				url = SmoothUtils.GetFullUrlFromChannelNumber(channelNum),
@@ -294,7 +297,7 @@ def LiveMenu(url = None):
 						optimized_for_streaming = True
 					)
 				]
-				))
+			))
 
 	return oc
 #################################################################################################
@@ -351,16 +354,16 @@ def CategoryMenu(url = None):
 		channelNum = str(show['channel'])
 		thumbText = '%02d'%int(channelNum)
 		channelItem = channelsDict[str(channelNum)]
+		channelName = channelItem.name.replace("720P", "HD")
 		titleText = formatShowText(channelItem, show, currentTime, "{when} {title} {qual} {lang} {time} {chname} #{ch}")
-
 		artUrl = 'http://smoothstreams.tv/schedule/includes/images/uploads/8ce52ab224906731eaed8497eb1e8cb4.png'
 		channelUrl = SmoothUtils.GetFullUrlFromChannelNumber(channelNum)
-		thumb = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = formatShowText(channelItem, show, currentTime, "{chname}"), category = "", large = False)
+		thumb = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = "", large = False)
 
 		if Prefs['channelDetails']:
 			oc.add(DirectoryObject(key = Callback(PlayMenu, url = channelUrl, channelNum = channelNum), title = titleText, summary = SmoothUtils.fix_text(show['description']), thumb = thumb))
 		elif SmoothUtils.GetDateTimeNative(show['time']) < currentTime:
-			thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = formatShowText(channelItem, show, currentTime, "{chname}"), category = "", large = True)
+			thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = "", large = True)
 			oc.add(VideoClipObject(
 				key = Callback(CreateVideoClipObject, url = HTTPLiveStreamURL(SmoothUtils.GetFullUrlFromChannelNumber(channelNum)), title = titleText, thumb = thumbV, container = True),
 				url = SmoothUtils.GetFullUrlFromChannelNumber(channelNum),
@@ -375,7 +378,7 @@ def CategoryMenu(url = None):
 				]
 				))
 		else:
-			thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = formatShowText(channelItem, show, currentTime, "{chname}"), category = "", large = True)
+			thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = "", large = True)
 			oc.add(CreateVideoClipObject(
 				url = SmoothUtils.GetFullUrlFromChannelNumber(channelNum) + "&" + show['id'] + "&tm=" + str(show['time']).replace(" ", ""),
 				title = SmoothUtils.fix_text(titleText),
@@ -436,24 +439,25 @@ def ScheduleListMenu(startIndex = 0):
 
 		if not channelsDict is None and not channelsDict[channelNum] is None:
 			channelItem = channelsDict[channelNum]
+			channelName = channelItem.name.replace("720P", "HD")
 			channelText = channelItem.GetStatusText()
 			channelText = formatShowText(channelItem, show, currentTime, "{when} {time} #{ch} {chname} {title} {qual} {lang} ({cat})")
 		else:
 			channelText = '%02d {0} ' % (channelNum, channelSeparator)
 			channelText = formatShowText(channelItem, show, currentTime, "")
 
-		thumb = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = formatShowText(channelItem, show, currentTime, "{chname}"), category = show['category'], large = False)
-
 		# CHECK PREFS for Scheduled Channel Details 
 		if Prefs['channelDetails']:
+			thumb = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = show['category'], large = False)
 		 	oc.add(DirectoryObject(key = Callback(PlayMenu, url = channelUrl, channelNum = channelNum), title = SmoothUtils.fix_text(channelText), summary = SmoothUtils.fix_text(show['description']), thumb = thumb))
 		else:
+			thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = show['category'], large = True)
 			oc.add(VideoClipObject(
-				key = Callback(CreateVideoClipObject, url = HTTPLiveStreamURL(SmoothUtils.GetFullUrlFromChannelNumber(channelNum)), title = SmoothUtils.fix_text(channelText), thumb = thumb, container = True),
+				key = Callback(CreateVideoClipObject, url = HTTPLiveStreamURL(SmoothUtils.GetFullUrlFromChannelNumber(channelNum)), title = SmoothUtils.fix_text(channelText), thumb = thumbV, container = True),
 				url = SmoothUtils.GetFullUrlFromChannelNumber(channelNum),
 				title = SmoothUtils.fix_text(channelText),
 				summary = SmoothUtils.fix_text(show['description']),
-				thumb = thumb,
+				thumb = thumbV,
 				items = [
 					MediaObject(
 						parts = [ PartObject(key = HTTPLiveStreamURL(url = SmoothUtils.GetFullUrlFromChannelNumber(channelNum)), duration = 1000) ],
@@ -479,12 +483,15 @@ def PlayMenu(url = None,channelNum = None):
 	title = channelNum
 	addedItems = False
 	channelsDict = Dict['channelsDict']
+	currentTime = SmoothUtils.getCurrentTimeNative()
+
 	if not channelsDict is None and not channelsDict[str(channelNum)] is None:
 		channel = channelsDict[str(channelNum)]
 		title = channel.name
 		upcomingShows = channel.Upcoming()
 		oc.title1 = title
 		channelItem = channelsDict[str(channelNum)]
+		channelName = channelItem.name.replace("720P", "HD")
 		channelText = SmoothUtils.fix_text(channelItem.GetStatusText())
 		channelText1 = SmoothUtils.fix_text(channelItem.GetStatusText1())
 		channelText2 = SmoothUtils.fix_text(channelItem.GetStatusText2())
@@ -492,11 +499,12 @@ def PlayMenu(url = None,channelNum = None):
 		if not upcomingShows is None and len(upcomingShows) > 0:
 			nowPlaying = channel.NowPlaying()
 			if nowPlaying is None:
+					thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = "", large = True)
 					oc.add(VideoClipObject(
-					key = Callback(CreateVideoClipObject, url = HTTPLiveStreamURL(SmoothUtils.GetFullUrlFromChannelNumber(channelNum)), title = SmoothUtils.fix_text(channelText), thumb = R(channelText2 + '.png'), container = True),
+					key = Callback(CreateVideoClipObject, url = HTTPLiveStreamURL(SmoothUtils.GetFullUrlFromChannelNumber(channelNum)), title = SmoothUtils.fix_text(channelText), thumb = thumbV, container = True),
 					url = SmoothUtils.GetFullUrlFromChannelNumber(channelNum),
-					title = SmoothUtils.fix_text(channelText1),
-					thumb = R(channelText2 + '.png'),
+					title = formatShowText(channelItem, None, currentTime, "{ch} {chname}"),
+					thumb = thumbV,
 					items = [
 						MediaObject(
 							parts = [ PartObject( key = HTTPLiveStreamURL(url = SmoothUtils.GetFullUrlFromChannelNumber(channelNum)), duration = 1000) ],
@@ -506,16 +514,18 @@ def PlayMenu(url = None,channelNum = None):
 					))
 			else:
 				# we only get here if we couldn't get any schedule info
+				thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = nowPlaying['category'], large = True)
 				oc.add(CreateVideoClipObject(
 					url = HTTPLiveStreamURL(SmoothUtils.GetFullUrlFromChannelNumber(channelNum)),
-					title = SmoothUtils.fix_text((nowPlaying['name'] + ' (' + nowPlaying['quality'] + ') ' + SmoothUtils.GetShowTimeText(nowPlaying))),
-					thumb = R(channelText2 + '.png')
+					title = formatShowText(channelItem, show, currentTime, "{title} {lang} ({qual}) {time}"),
+					thumb = thumbV
 				))
 			for show in upcomingShows:
+				thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = show['category'], large = True)
 				oc.add(CreateVideoClipObject(
 					url = SmoothUtils.GetFullUrlFromChannelNumber(channelNum) + "&" + show['id'],
-					title = SmoothUtils.fix_text(('LATER: ' + show['name'] + ' (' + show['quality'] + ') ' + SmoothUtils.GetShowTimeText(show))),
-					thumb = R(channelText2 + '.png')
+					title = formatShowText(channelItem, show, currentTime, "{when}: {title} {lang} ({qual}) {time}"),
+					thumb = thumbV
 				))
 
 			addedItems = True
