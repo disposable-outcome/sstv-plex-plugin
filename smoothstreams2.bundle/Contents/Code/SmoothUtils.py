@@ -181,6 +181,7 @@ def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
 					if startTime < currentTime < endTime:
 						nowPlayingDict.append(show)
 					
+					# clean up the categories
 					if len(show['category']) > 0:
 						if show['category'].lower() in ['', 'tv', 'general tv', 'american football'] and (show['name'].find("NFL") > -1 or show['description'].find("NFL") > -1 or show['description'].find("National Football League") > -1):
 							show['category'] = u"NFL"
@@ -224,6 +225,11 @@ def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
 
 					if (channel['name'].upper().endswith("720P") or channel['name'].endswith("HD")) and show['quality'].lower() in ['', 'hqlq']:
 						show['quality'] = "720p"
+
+					if show['name'].startswith("Test Cricket"):
+						show['name'] = show['name'][5:]
+					if show['description'] == "No description":
+						show['description'] = ""
 
 					#if len(show['quality']) > 0:
 					#	if not show['category'] + ' ' + show['quality'] in categoryDict:
