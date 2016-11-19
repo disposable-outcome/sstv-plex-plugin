@@ -91,7 +91,7 @@ def VideoMainMenu():
 					title = mySearch.split(":")[0].strip()
 					searchString = mySearch.split(":")[1].strip()
 				else:
-					title = mySearch.replace(" NOW", "").replace(" NEXT", "").replace(" HD", "")
+					title = mySearch
 					searchString = mySearch
 				thumb = SmoothUtils.GetChannelThumb(category = title, large = False)
 				oc.add(DirectoryObject(key = Callback(SearchShows, query = searchString), title = title, thumb = thumb))
