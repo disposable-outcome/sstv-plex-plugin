@@ -87,8 +87,14 @@ def VideoMainMenu():
 		#for category in sorted(categoryDict):
 		if not Prefs['mySearch'] is None and len(Prefs['mySearch']) > 2:
 			for mySearch in Prefs['mySearch'].split(";"):
-				thumb = SmoothUtils.GetChannelThumb(category = mySearch.replace(" NOW", "").replace(" NEXT", "").replace(" HD", ""), large = False)
-				oc.add(DirectoryObject(key = Callback(SearchShows, query = mySearch), title = mySearch, thumb = thumb))
+				if ":" in mySearch:
+					title = mySearch.split(":")[0].strip()
+					searchString = mySearch.split(":")[1].strip()
+				else:
+					title = mySearch.replace(" NOW", "").replace(" NEXT", "").replace(" HD", "")
+					searchString = mySearch
+				thumb = SmoothUtils.GetChannelThumb(category = title, large = False)
+				oc.add(DirectoryObject(key = Callback(SearchShows, query = searchString), title = title, thumb = thumb))
 
 		oc.add(InputDirectoryObject(key = Callback(SearchShows), title = "Search Shows", prompt = 'Enter show title'))
 
