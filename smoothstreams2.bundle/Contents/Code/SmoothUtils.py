@@ -238,11 +238,6 @@ def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
 					if show['description'] == "No description":
 						show['description'] = ""
 
-					#if len(show['quality']) > 0:
-					#	if not show['category'] + ' ' + show['quality'] in categoryDict:
-					#		categoryDict[show['category'] + ' ' + show['quality']] = []
-					#	categoryDict[show['category'] + ' ' + show['quality']].append(show)
-
 					showsList.append(show)
 
 	# Display and cache the dictionary info
@@ -252,7 +247,6 @@ def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
 	Dict['showsList'] = showsList
 	Dict.Save()
 	Log.Info('Saved GetScheduleJson results')
-
 
 def GetFullUrlFromChannelNumber(channelNum, checkQuality=False):
 	if checkQuality:
