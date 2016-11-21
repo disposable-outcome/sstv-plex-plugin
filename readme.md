@@ -24,15 +24,16 @@ You can also use the following keywords:
 
 #### Example
 ```
-NHL NOW HD;NFL;Movies NEXT HD;NOW HD
+LiveNHL:NHL NOW HD;NFL;Movies NEXT HD;NOW HD;US Sports:NFL NHL NBA Baseball
 ```
 
-Would make four entries.
+Would make five entries.
 
-- All shows in the NHL category and any other shows with the term 'NHL' in the title or description only in HD
+- All shows in the NHL category and any other shows with the term 'NHL' in the title or description only in HD. This will get a custom title of 'LiveNHL'
 - All shows in the NFL category and shows with the term 'NFL' in the title or description
 - All shows in the Movies category that are HD that start in the next 90 minutes
 - All shows that are currently on and are in HD
+- All shows matching the words: NFL NHL NBA and Baseball with a custom title of 'US Sports'
 
 ### HD Only?
 Only show content that is 720p or better in all menus.
