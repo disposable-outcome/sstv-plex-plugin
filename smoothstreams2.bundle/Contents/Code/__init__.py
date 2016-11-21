@@ -151,7 +151,10 @@ def SearchShows(query):
 		if keepShow:
 			showsList += [show]
 
-	showsList.sort(key = lambda x: (x['time'], x['name'], x['quality']))
+	if nowOnly:
+		showsList.sort(key = lambda x: (x['name'], x['quality'], x['time']))
+	else:
+		showsList.sort(key = lambda x: (x['time'], x['name'], x['quality']))
 
 	showCount = 0
 	for show in showsList:
