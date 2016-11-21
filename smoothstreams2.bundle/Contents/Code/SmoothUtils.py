@@ -18,6 +18,7 @@ import json
 import os
 
 THUMB_URL = 'http://smoothstreams.tv/schedule/includes/images/uploads/'
+GUIDE_CACHE_MINUTES = 10
 
 def fix_text(text):
 	def fixup(m):
@@ -124,6 +125,10 @@ def GetServicePort(serviceName=None):
 	return port
 
 def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
+	if "guideValidUntil" in Dict and Dict['guideValidUntil'] > datetime.datetime.now():
+		Log.Info('Guide load not needed')
+		return
+
 	Log.Info('Starting GetScheduleJson')
 	is_dst = time.daylight and time.localtime().tm_isdst > 0
 	utc_offset = - (time.altzone if is_dst else time.timezone)
@@ -151,13 +156,13 @@ def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
 		Dict['currentGuide'] = "All"
 		cacheSeconds = 21600 # cache for 6 hours because this guide is not updated often
 
-	result = JSON.ObjectFromURL(scheduleFeedURL, cacheTime=cacheSeconds)
+	result = JSON.ObjectFromURL(scheduleFeedURL, cacheTime = cacheSeconds)
 	Log.Info("Getting guide from " + scheduleFeedURL)
 	
 	# these are going to get cached for future lookups
 	channelsDict = {}
 	showsList = []
-	nowPlayingDict = []
+	#nowPlayingDict = []
 	categoryDict = {}
 	
 	for channelId in result:
@@ -180,19 +185,19 @@ def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
 				endTime = GetDateTimeNative(show['end_time'])
 				if endTime >= currentTime:
 					startTime = GetDateTimeNative(show['time'])
-					if startTime < currentTime < endTime:
-						nowPlayingDict.append(show)
-					
+
 					# clean up the categories
-					if show['category'].lower() in ['', 'tv', 'general tv', 'american football'] and (show['name'].find("NFL") > -1 or show['description'].find("NFL") > -1 or show['description'].find("National Football League") > -1):
+					if " " in show['category']:
+						show['category'] = show['category'].replace(" ", "")
+					if show['category'].lower() in ['', 'tv', 'generaltv', 'americanfootball'] and (show['name'].find("NFL") > -1 or show['description'].find("NFL") > -1 or show['description'].find("National Football League") > -1):
 						show['category'] = u"NFL"
-					elif show['category'].lower() in ['', 'tv', 'general tv', 'ice hockey'] and (show['name'].find("NHL") > -1 or show['description'].find("NHL") > -1 or show['description'].find("National Hockey League") > -1 or channelName[:3] == 'NHL'):
+					elif show['category'].lower() in ['', 'tv', 'generaltv', 'icehockey'] and (show['name'].find("NHL") > -1 or show['description'].find("NHL") > -1 or show['description'].find("National Hockey League") > -1 or channelName[:3] == 'NHL'):
 						show['category'] = u"NHL"
 					elif show['category'].lower() == 'nascar':
 						show['category'] = u"NASCAR"
-					elif show['category'].lower() in ['', 'tv', 'general tv', 'other sports']:
+					elif show['category'].lower() in ['', 'tv', 'generaltv', 'othersports']:
 						if show['name'].find("NHL") > -1 or show['description'].find("NHL") > -1 or show['name'].find("Hockey") > -1:
-							show['category'] = u"Ice Hockey"
+							show['category'] = u"IceHockey"
 						elif show['name'].find("NFL") > -1 or show['description'].find("NFL") > -1:
 							show['category'] = u"NFL"
 						elif show['name'].find("College Football") > -1 or show['name'].find("CFB") > -1:
@@ -200,7 +205,7 @@ def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
 						elif show['name'].find("Rugby") > -1 or show['description'].find("Rugby") > -1:
 							show['category'] = u"Rugby"
 						elif show['name'].find("FIFA") > -1 or show['name'].find("UEFA") > -1 or show['name'].find("EPL") > -1 or show['description'].find("FIFA") > -1 or show['name'].find("Soccer") > -1 or show['name'].find("Premier League") > -1 or show['description'].find("Premier League") > -1 or show['name'].find("Bundesliga") > -1 or show['description'].find("Bundesliga") > -1:
-							show['category'] = u"World Football"
+							show['category'] = u"WorldFootball"
 						elif (show['name'].find("NBA") > -1 or show['description'].find("NBA") > -1 or channelName[:3] == 'NBA') and (show['name'].find("WNBA") == -1 or show['description'].find("WNBA") == -1):
 							show['category'] = u"NBA"
 						elif show['name'].find("MLB") > -1 or channelName[:3] == 'MLB':
@@ -208,7 +213,7 @@ def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
 						elif show['name'].find("PGA") > -1 or channelName[:4] == 'Golf':
 							show['category'] = u"Golf"
 						elif show['name'].find("UFC") > -1 or show['description'].find("UFC") > -1 or channelName[:3] == 'UFC' or channelName[:5] == 'Fight':
-							show['category'] = u"Boxing + MMA"
+							show['category'] = u"Boxing+MMA"
 						elif show['name'].find("NASCAR") > -1 or show['description'].find("NASCAR") > -1:
 							show['category'] = u"NASCAR"
 						elif show['name'].find("WWE") > -1 or channelName[:3] == 'WWE':
@@ -224,7 +229,7 @@ def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
 						elif ('runtime' in show and int(show['runtime']) > 70) and (channelName[:3] == 'HBO' or channelName[:7] == 'Cinemax' or channelName[:9] == 'Actionmax' or channelName[:8] == 'Showtime' or channelName[:3] == 'AMC' or channelName[:5] == 'Starz'):
 							show['category'] = u"Movies"
 						else:
-							show['category'] = u"General TV"
+							show['category'] = u"GeneralTV"
 
 					if not show['category'] in categoryDict:
 						categoryDict[show['category']] = []
@@ -238,13 +243,16 @@ def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
 					if show['description'] == "No description":
 						show['description'] = ""
 
+					#if startTime < currentTime < endTime:
+					#	nowPlayingDict.append(show)
 					showsList.append(show)
 
 	# Display and cache the dictionary info
-	Dict['nowPlayingDict'] = nowPlayingDict
+	#Dict['nowPlayingDict'] = nowPlayingDict
 	Dict['categoryDict'] = categoryDict
 	Dict['channelsDict'] = channelsDict
 	Dict['showsList'] = showsList
+	Dict['guideValidUntil'] = datetime.datetime.now() + datetime.timedelta(minutes = GUIDE_CACHE_MINUTES)
 	Dict.Save()
 	Log.Info('Saved GetScheduleJson results')
 
@@ -350,6 +358,7 @@ class SsChannel:
 				if startTime >= currentTime and endTime > currentTime:
 					results.append(item)
 
+			results.sort(key = lambda x: (x['time']))
 			return results
 
 	def GetChannel(self):

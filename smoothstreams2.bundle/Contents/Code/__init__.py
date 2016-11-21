@@ -27,17 +27,17 @@ MAX_CHAN = 120 # changed this to a preference
 
 
 VIDEO_PREFIX = ''
-PREFIX = '/video/Smoothstreamsvideos'
+NAME = 'Smoothstreams'
+PREFIX = '/video/' + NAME + 'videos'
 CHANNELS = {'01': 'Channel 01', '02':'Channel 02'}
 ORDERED_CHANNELS = ['01', '02']
 
-NAME = 'Smoothstreams2'
 ART  = 'art-default.png'
 ICON = 'icon-default.png'
 ####################################################################################################
 
 def Start():
-	Log.Info("***SmoothStreams starting Python Version {0} TimeZone {1}".format(sys.version, time.timezone))
+	Log.Info("***{0} starting Python Version {1} TimeZone {2}".format(NAME, sys.version, time.timezone))
 	loginResult = SmoothAuth.login()
 	scheduleResult = SmoothUtils.GetScheduleJson()
 	if Dict['SPassW'] is None:
@@ -54,7 +54,7 @@ def Start():
 
 @route(PREFIX + '/ValidatePrefs')
 def ValidatePrefs():
-	Log.Info("***SmoothStreams ValidatePrefs Python Version {0} TimeZone {1}".format(sys.version, time.timezone))
+	Log.Info("***{0} ValidatePrefs Python Version {1} TimeZone {2}".format(NAME, sys.version, time.timezone))
 	# Do we need to reset the extentions?
 	Log.Info('ValidatePrefs')
 	loginResult = SmoothAuth.login()
@@ -134,7 +134,7 @@ def SearchShows(query):
 	for show in showsListAll:
 		keepShow = False
 		showName = show['name'].upper()
-		showCat = show['category'].upper()
+		showCat = show['category'].replace(" ", "").upper()
 		showDesc = show['description'].upper()
 		startTime = SmoothUtils.GetDateTimeNative(show['time'])
 		endTime = SmoothUtils.GetDateTimeNative(show['end_time'])
@@ -173,7 +173,7 @@ def SearchShows(query):
 				tagline = SmoothUtils.fix_text(show['description']),
 				summary = SmoothUtils.fix_text(titleText),
 				studio = channelName,
-				quotes = "quotes1",
+				quotes = "",
 				thumb = thumb))
 		elif SmoothUtils.GetDateTimeNative(show['time']) < currentTime:
 			thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = show['category'], large = True)
@@ -184,7 +184,7 @@ def SearchShows(query):
 					tagline = SmoothUtils.fix_text(show['description']),
 					summary = SmoothUtils.fix_text(titleText),
 					studio = channelName,
-					quotes = "quotes1",
+					quotes = "",
 					thumb = thumbV,
 					art = thumbV,
 					container = True),
@@ -193,7 +193,7 @@ def SearchShows(query):
 				tagline = SmoothUtils.fix_text(show['description']),
 				summary = "",
 				studio = channelName,
-				quotes = "quotes1",
+				quotes = "",
 				thumb = thumbV,
 				art = thumbV,
 				items = [
@@ -271,14 +271,14 @@ def ChannelsMenu(url = None):
 						summary = SmoothUtils.fix_text(summaryText),
 						thumb = thumbV,
 						studio = channelName,
-						quotes = "quotes1",
+						quotes = "",
 						container = True),
 					url = SmoothUtils.GetFullUrlFromChannelNumber(channelNum),
 					title = SmoothUtils.fix_text(titleText),
 					tagline = SmoothUtils.fix_text(tagLine),
 					summary = SmoothUtils.fix_text(summaryText),
 					studio = channelName,
-					quotes = "quotes2",
+					quotes = "",
 					thumb = thumbV,
 					items = [
 						MediaObject(
@@ -294,18 +294,18 @@ def LiveMenu(url = None):
 	oc = ObjectContainer(title2 = "Live")
 	Log.Info('LiveMenu')
 	channelsDict = Dict['channelsDict']
-	nowPlayingDict = Dict['nowPlayingDict']
+	showsListAll = Dict['showsList']
 	currentTime = SmoothUtils.getCurrentTimeNative()
 
 	for i in range(1, 5):
 		Log.Info('sleeping 500ms for async schedule details to return')
 		Thread.Sleep(0.5)
-		if not channelsDict is None and not nowPlayingDict is None:
+		if not channelsDict is None and not showsListAll is None:
 			break
 		#channelsDict = Dict['channelsDict']
-		#nowPlayingDict = Dict['nowPlayingDict']
+		#showsList = Dict['showsList']
 	
-	showsList = [i for i in nowPlayingDict if SmoothUtils.GetDateTimeNative(i['end_time']) >= currentTime and (not Prefs['hdOnly'] or i['quality'].lower() == '720p' or i['quality'].lower() == '1080i')]
+	showsList = [i for i in showsListAll if SmoothUtils.GetDateTimeNative(i['time']) <= currentTime and SmoothUtils.GetDateTimeNative(i['end_time']) >= currentTime and (not Prefs['hdOnly'] or i['quality'].lower() == '720p' or i['quality'].lower() == '1080i')]
 	showsList.sort(key = lambda x: (x['category'], x['name'], x['quality'], x['time']))
 
 	for i in range(0, len(showsList)):
@@ -383,7 +383,7 @@ def CategoriesMenu():
 def CategoryMenu(url = None):
 	Log.Info("CategoryMenu " + url)
 	if url is None:
-		oc = ObjectContainer(title2 = "Category")
+		oc = ObjectContainer(title2 = "Categories")
 	else:
 		oc = ObjectContainer(title2 = url)
 	channelsDict = Dict['channelsDict']
@@ -548,7 +548,7 @@ def ScheduleListMenu(startIndex = 0):
 	return oc
 #################################################################################################
 @route(PREFIX + '/channels/playmenu')
-def PlayMenu(url = None,channelNum = None):
+def PlayMenu(url = None, channelNum = None):
 	### This is the detailed PLAY menu after a channel has been selected which shows NOW PLAYING, and then the shows that will be on later
 	Log.Info('PlayMenu with Url ' + url)
 	oc = ObjectContainer(title1 = 'Channel ' + channelNum)
@@ -751,8 +751,6 @@ def formatShowText(channel, show, currentTime, formatString):
 		if showTime > currentTime:
 			if showTime.date() == currentTime.date():
 				when = "LATER"
-			elif (showTime - datetime.timedelta(days = 1)).date() == currentTime.date():
-				when = "TOM"
 			else:
 				when = calendar.day_name[showTime.weekday()][:3].upper()
 
