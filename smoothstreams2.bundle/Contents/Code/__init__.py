@@ -93,7 +93,7 @@ def VideoMainMenu():
 				else:
 					title = mySearch
 					searchString = mySearch
-				thumb = SmoothUtils.GetChannelThumb(category = title, large = False)
+				thumb = SmoothUtils.GetChannelThumb(category = title.replace(" HD", "").replace(" NOW", "").replace(" NEXT", ""), large = False)
 				oc.add(DirectoryObject(key = Callback(SearchShows, query = searchString), title = title, thumb = thumb))
 
 		oc.add(InputDirectoryObject(key = Callback(SearchShows), title = "Search Shows", prompt = 'Enter show title'))
@@ -240,7 +240,7 @@ def ChannelsMenu(url = None):
 				category = nowPlaying['category']
 				tagLine = nowPlaying['description']
 
-			if upcoming is None:
+			if upcoming is None or len(upcoming) == 0:
 				summaryText = ""
 			else:
 				summaryText = formatShowText(channelItem, upcoming, currentTime, "{when} {title} {qual} {lang} {time} ({cat})")
@@ -718,7 +718,8 @@ def getShowText(show, currentTime):
 
 def formatShowText(channel, show, currentTime, formatString):
 	language = ""
-	
+	when = ""
+
 	if " - " in channel.name:
 		chanName = channel.name.split(" - ")[1]
 	else:
@@ -732,17 +733,14 @@ def formatShowText(channel, show, currentTime, formatString):
 
 		if "720p" in chanName.lower():
 			chanName = chanName.replace(" 720P", "HD")
-		
 		showTime = SmoothUtils.GetDateTimeNative(show['time'])
 		if showTime > currentTime:
 			if showTime.date() == currentTime.date():
 				when = "LATER"
-			elif (showTime - datetime.timedelta(days=1)).date() == currentTime.date():
+			elif (showTime - datetime.timedelta(days = 1)).date() == currentTime.date():
 				when = "TOM"
 			else:
 				when = calendar.day_name[showTime.weekday()][:3].upper()
-		else:
-			when = ""
 
 		if "category" in show and show["name"].startswith(show["category"] + ":") and show["category"] != "News":
 			show["name"] = show["name"].replace(show["category"] + ":", "").strip()
