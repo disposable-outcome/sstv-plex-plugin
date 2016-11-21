@@ -79,8 +79,10 @@ def GetServerUrlByName(serverLocation=None):
 		return "deu.nl2.SmoothStreams.tv"
 	elif serverLocation == 'EU NL-i3d':
 		return "deu.nl1.SmoothStreams.tv"
-	elif serverLocation == 'EU UK-London':
+	elif serverLocation == 'EU UK Random':
 		return "deu.uk.SmoothStreams.tv"
+	elif serverLocation == 'EU UK-London1':
+		return "deu.uk1.SmoothStreams.tv"
 	elif serverLocation == 'EU UK-London2':
 		return "deu.uk2.SmoothStreams.tv"
 	elif serverLocation == 'US All':
@@ -182,46 +184,51 @@ def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
 						nowPlayingDict.append(show)
 					
 					# clean up the categories
-					if len(show['category']) > 0:
-						if show['category'].lower() in ['', 'tv', 'general tv', 'american football'] and (show['name'].find("NFL") > -1 or show['description'].find("NFL") > -1 or show['description'].find("National Football League") > -1):
+					if show['category'].lower() in ['', 'tv', 'general tv', 'american football'] and (show['name'].find("NFL") > -1 or show['description'].find("NFL") > -1 or show['description'].find("National Football League") > -1):
+						show['category'] = u"NFL"
+					elif show['category'].lower() in ['', 'tv', 'general tv', 'ice hockey'] and (show['name'].find("NHL") > -1 or show['description'].find("NHL") > -1 or show['description'].find("National Hockey League") > -1 or channelName[:3] == 'NHL'):
+						show['category'] = u"NHL"
+					elif show['category'].lower() == 'nascar':
+						show['category'] = u"NASCAR"
+					elif show['category'].lower() in ['', 'tv', 'general tv', 'other sports']:
+						if show['name'].find("NHL") > -1 or show['description'].find("NHL") > -1 or show['name'].find("Hockey") > -1:
+							show['category'] = u"Ice Hockey"
+						elif show['name'].find("NFL") > -1 or show['description'].find("NFL") > -1:
 							show['category'] = u"NFL"
-						elif show['category'].lower() in ['', 'tv', 'general tv', 'ice hockey'] and (show['name'].find("NHL") > -1 or show['description'].find("NHL") > -1 or show['description'].find("National Hockey League") > -1 or channelName[:3] == 'NHL'):
-							show['category'] = u"NHL"
-						elif show['category'].lower() == 'nascar':
+						elif show['name'].find("College Football") > -1 or show['name'].find("CFB") > -1:
+							show['category'] = u"NCAAF"
+						elif show['name'].find("Rugby") > -1 or show['description'].find("Rugby") > -1:
+							show['category'] = u"Rugby"
+						elif show['name'].find("FIFA") > -1 or show['name'].find("UEFA") > -1 or show['name'].find("EPL") > -1 or show['description'].find("FIFA") > -1 or show['name'].find("Soccer") > -1 or show['name'].find("Premier League") > -1 or show['description'].find("Premier League") > -1 or show['name'].find("Bundesliga") > -1 or show['description'].find("Bundesliga") > -1:
+							show['category'] = u"World Football"
+						elif (show['name'].find("NBA") > -1 or show['description'].find("NBA") > -1 or channelName[:3] == 'NBA') and (show['name'].find("WNBA") == -1 or show['description'].find("WNBA") == -1):
+							show['category'] = u"NBA"
+						elif show['name'].find("MLB") > -1 or channelName[:3] == 'MLB':
+							show['category'] = u"Baseball"
+						elif show['name'].find("PGA") > -1 or channelName[:4] == 'Golf':
+							show['category'] = u"Golf"
+						elif show['name'].find("UFC") > -1 or show['description'].find("UFC") > -1 or channelName[:3] == 'UFC' or channelName[:5] == 'Fight':
+							show['category'] = u"Boxing + MMA"
+						elif show['name'].find("NASCAR") > -1 or show['description'].find("NASCAR") > -1:
 							show['category'] = u"NASCAR"
-						elif show['category'].lower() in ['', 'tv', 'general tv']:
-							if show['name'].find("NHL") > -1 or show['description'].find("NHL") > -1 or show['name'].find("Hockey") > -1:
-								show['category'] = u"Ice Hockey"
-							elif show['name'].find("NFL") > -1 or show['description'].find("NFL") > -1:
-								show['category'] = u"NFL"
-							elif show['name'].find("College Football") > -1 or show['name'].find("CFB") > -1:
-								show['category'] = u"NCAAF"
-							elif show['name'].find("Rugby") > -1 or show['description'].find("Rugby") > -1:
-								show['category'] = u"Rugby"
-							elif show['name'].find("FIFA") > -1 or show['name'].find("UEFA") > -1 or show['name'].find("EPL") > -1 or show['description'].find("FIFA") > -1 or show['name'].find("Soccer") > -1 or show['description'].find("Premier League") > -1 or show['name'].find("Bundesliga") > -1 or show['description'].find("Bundesliga") > -1:
-								show['category'] = u"World Football"
-							elif (show['name'].find("NBA") > -1 or show['description'].find("NBA") > -1 or channelName[:3] == 'NBA') and (show['name'].find("WNBA") == -1 or show['description'].find("WNBA") == -1):
-								show['category'] = u"NBA"
-							elif show['name'].find("MLB") > -1 or channelName[:3] == 'MLB':
-								show['category'] = u"Baseball"
-							elif show['name'].find("PGA") > -1 or channelName[:4] == 'Golf':
-								show['category'] = u"Golf"
-							elif show['name'].find("UFC") > -1 or show['description'].find("UFC") > -1 or channelName[:3] == 'UFC' or channelName[:5] == 'Fight':
-								show['category'] = u"Boxing + MMA"
-							elif show['name'].find("NASCAR") > -1 or show['description'].find("NASCAR") > -1:
-								show['category'] = u"NASCAR"
-							elif show['name'].find("WWE") > -1 or channelName[:3] == 'WWE':
-								show['category'] = u"Wrestling"
-							elif show['name'].find("News") > -1 or show['description'].lower().find("news") > -1 or channelName[:3] == 'CNN' or channelName[:4] == 'CNBC' or channelName == 'Fox News':
-								show['category'] = u"News"
-							elif ('runtime' in show and int(show['runtime']) > 60) and (channelName[:3] == 'HBO' or channelName[:7] == 'Cinemax' or channelName[:9] == 'Actionmax' or channelName[:8] == 'Showtime' or channelName[:3] == 'AMC' or channelName[:5] == 'Starz'):
-								show['category'] = u"Movies"
-							else:
-								show['category'] = u"General TV"
+						elif show['name'].find("WWE") > -1 or channelName[:3] == 'WWE':
+							show['category'] = u"Wrestling"
+						elif show['name'].find("Curling") > -1 or show['description'].find("Curling") > -1:
+							show['category'] = u"Curling"
+						elif show['name'].find("Darts") > -1 or show['description'].find("Darts") > -1:
+							show['category'] = u"Darts"
+						elif show['name'].find("Snooker") > -1 or show['description'].find("Snooker") > -1:
+							show['category'] = u"Snooker"
+						elif show['name'].find("News") > -1 or show['description'].lower().find("news") > -1 or channelName[:3] == 'CNN' or channelName[:4] == 'CNBC' or channelName == 'Fox News':
+							show['category'] = u"News"
+						elif ('runtime' in show and int(show['runtime']) > 70) and (channelName[:3] == 'HBO' or channelName[:7] == 'Cinemax' or channelName[:9] == 'Actionmax' or channelName[:8] == 'Showtime' or channelName[:3] == 'AMC' or channelName[:5] == 'Starz'):
+							show['category'] = u"Movies"
+						else:
+							show['category'] = u"General TV"
 
-						if not show['category'] in categoryDict:
-							categoryDict[show['category']] = []
-						categoryDict[show['category']].append(show)
+					if not show['category'] in categoryDict:
+						categoryDict[show['category']] = []
+					categoryDict[show['category']].append(show)
 
 					if (channel['name'].upper().endswith("720P") or channel['name'].endswith("HD")) and show['quality'].lower() in ['', 'hqlq']:
 						show['quality'] = "720p"
@@ -272,19 +279,23 @@ def GetChannelThumb(chanNum = 0, chanName = "", category = "", large = False):
 		if " - " in chanName:
 			chanName = chanName.split(" - ")[1]
 		chanName = chanName.replace(" ", "")
+		if chanNum == 0:
+			sChanNum = ""
+		else:
+			sChanNum = str(chanNum)
 		if large:
 			chanAdd = "v"
-			fallBack = "https://dummyimage.com/195x110/000/ffffff&text=" + str(chanNum) + " " + chanName + " " + category.replace(" ", "+")
+			fallBack = "https://placeholdit.imgix.net/~text?txtsize=25&bg=000000&txtclr=ffffff&w=195&h=110&fm=png&txttrack=0&txt=" + ((sChanNum + " " + chanName + " " + category).replace("  ", " ").replace(" ", "+")).strip()
 		else:
 			chanAdd = ""
-			fallBack = "https://dummyimage.com/120x120/000/ffffff&text=" + str(chanNum) + " " + chanName + " " + category.replace(" ", "+")
+			fallBack = "https://placeholdit.imgix.net/~text?txtsize=25&bg=000000&txtclr=ffffff&w=120&h=120&fm=png&txttrack=0&txt=" + ((sChanNum + " " + chanName + " " + category).replace("  ", " ").replace(" ", "+")).strip()
 
 		thumb = None
 		if not category.replace(" ", "").lower() in ["", "tv", "generaltv"]:
 			thumb = R(re.sub('[^A-Za-z0-9]+', '', category) + chanAdd + '.png')
 		if thumb is None:
 			thumb = R(re.sub('[^A-Za-z0-9]+', '', chanName) + chanAdd + '.png')
-			if thumb is None and chanNum > 0:
+			if thumb is None:
 				thumb = fallBack
 		return thumb
 

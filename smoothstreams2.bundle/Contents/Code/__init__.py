@@ -166,7 +166,15 @@ def SearchShows(query):
 		thumb = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = show['category'], large = False)
 
 		if Prefs['channelDetails']:
-			oc.add(DirectoryObject(key = Callback(PlayMenu, url = channelUrl, channelNum = channelNum), title = titleText, thumb = thumb))
+			oc.add(DirectoryObject(key = Callback(PlayMenu,
+				url = channelUrl,
+				channelNum = channelNum),
+				title = titleText,
+				tagline = SmoothUtils.fix_text(show['description']),
+				summary = SmoothUtils.fix_text(titleText),
+				studio = channelName,
+				quotes = "quotes1",
+				thumb = thumb))
 		elif SmoothUtils.GetDateTimeNative(show['time']) < currentTime:
 			thumbV = SmoothUtils.GetChannelThumb(chanNum = int(channelNum), chanName = channelName, category = show['category'], large = True)
 			oc.add(VideoClipObject(
@@ -392,8 +400,11 @@ def CategoryMenu(url = None):
 		#categoryDict = Dict['categoryDict']
 	
 	# filter and sort the shows for the category by start time
-	showsList = sorted([i for i in categoryDict[url] if SmoothUtils.GetDateTimeNative(i['end_time']) >= currentTime and (not Prefs['hdOnly'] or i['quality'].lower() == '720p' or i['quality'].lower() == '1080i')], key = lambda x: (x['time'], x['name'], x['quality']))
-
+	if url in categoryDict:
+		showsList = sorted([i for i in categoryDict[url] if SmoothUtils.GetDateTimeNative(i['end_time']) >= currentTime and (not Prefs['hdOnly'] or i['quality'].lower() == '720p' or i['quality'].lower() == '1080i')], key = lambda x: (x['time'], x['name'], x['quality']))
+	else:
+		showsList = []
+	
 	showCount = 0
 	for show in showsList:
 		showCount += 1
