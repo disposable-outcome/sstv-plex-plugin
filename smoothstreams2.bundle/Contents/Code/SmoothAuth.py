@@ -19,11 +19,11 @@ LOGIN_TIMEOUT_MINUTES = 60
 def login():
 	if not isLoggedIn():
 		resetCredentials()
-		if "service" in Prefs:
+		if Prefs["service"] is not None:
 			service = Prefs["service"]
 			Log.Info("calling streams login for service " + service)
 			url = 'http://smoothstreams.tv/schedule/admin/dash_new/hash_api.php'
-			if "username" in Prefs and "password" in Prefs:
+			if Prefs["username"] is not None and Prefs["password"] is not None:
 				Log.Info("login url " + url + " for username " + Prefs['username'])
 				uname = Prefs['username']
 				pword = Prefs['password']

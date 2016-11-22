@@ -67,5 +67,11 @@
 		"type": "text",
 		"label": "Number of Channels",
 		"default": "120"
+	},
+	{
+		"id": "customServer",
+		"type": "text",
+		"label": "Custom Server",
+		"default": ""
 	}
 ]

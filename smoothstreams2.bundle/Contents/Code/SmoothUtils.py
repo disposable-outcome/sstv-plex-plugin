@@ -260,12 +260,17 @@ def GetFullUrlFromChannelNumber(channelNum, checkQuality=False):
 	if checkQuality:
 		return GetChannelUrlByQuality(channelNum, True)
 	
-	servicePort = GetServicePort(Prefs['service'])
+	if Prefs["customServer"] is not None and len(Prefs['customServer']) > 0 and ":" in Prefs['customServer'] > 0:
+		server = Prefs['customServer'].split(":")[0]
+		servicePort = Prefs['customServer'].split(":")[1]
+	else:
+		server = GetServerUrlByName(Prefs["serverLocation"])
+		servicePort = GetServicePort(Prefs['service'])
 	if True:
-		channelUrl = 'http://%s:%s/%s/ch%sq1.stream/playlist.m3u8?wmsAuthSign=%s' % (GetServerUrlByName(Prefs["serverLocation"]), servicePort, SmoothAuth.getLoginSite(),'%02d' % int(channelNum), Dict['SPassW'])
+		channelUrl = 'http://%s:%s/%s/ch%sq1.stream/playlist.m3u8?wmsAuthSign=%s' % (server, servicePort, SmoothAuth.getLoginSite(),'%02d' % int(channelNum), Dict['SPassW'])
 	else:
 		servicePort = 3625
-		channelUrl = 'rtmp://%s:%s/%s?wmsAuthSign=%s/ch%sq1.stream' % (GetServerUrlByName(Prefs["serverLocation"]), servicePort, SmoothAuth.getLoginSite(), Dict['SPassW'],'%02d' % int(channelNum))
+		channelUrl = 'rtmp://%s:%s/%s?wmsAuthSign=%s/ch%sq1.stream' % (server, servicePort, SmoothAuth.getLoginSite(), Dict['SPassW'],'%02d' % int(channelNum))
 	return channelUrl
 
 def GetChannelSummaryText(channelInfo=None):
