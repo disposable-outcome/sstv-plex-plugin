@@ -19,32 +19,38 @@ LOGIN_TIMEOUT_MINUTES = 60
 def login():
 	if not isLoggedIn():
 		resetCredentials()
-		service = Prefs["service"]
-		Log.Info("calling streams login for service " + service)
-		url = 'http://smoothstreams.tv/schedule/admin/dash_new/hash_api.php'
-		Log.Info("login url " + url + " for username " + Prefs['username'])
-		uname = Prefs['username']
-		pword = Prefs['password']
-		if uname != '':
-			post_data = {"username": uname, "password": pword, "site": getLoginSite()}
-			result = JSON.ObjectFromURL(url, values = post_data, encoding = 'utf-8', cacheTime = LOGIN_TIMEOUT_MINUTES * 100)
-			try:
-				Log.Info(result)
-				Dict["SUserN"] = result["code"]
-				Dict["SPassW"] = result["hash"]
-				Dict["validUntil"] = datetime.datetime.now() + datetime.timedelta(minutes = LOGIN_TIMEOUT_MINUTES)
-				Dict.Save()
-				Log.Info("Login complete")
-				return True
-			except Exception as e:
-				Log.Error("Error parsing login result: " + repr(e) + " - " + repr(result))
+		if "service" in Prefs:
+			service = Prefs["service"]
+			Log.Info("calling streams login for service " + service)
+			url = 'http://smoothstreams.tv/schedule/admin/dash_new/hash_api.php'
+			if "username" in Prefs and "password" in Prefs:
+				Log.Info("login url " + url + " for username " + Prefs['username'])
+				uname = Prefs['username']
+				pword = Prefs['password']
+				if uname != '':
+					post_data = {"username": uname, "password": pword, "site": getLoginSite()}
+					result = JSON.ObjectFromURL(url, values = post_data, encoding = 'utf-8', cacheTime = LOGIN_TIMEOUT_MINUTES * 100)
+					try:
+						Log.Info(result)
+						Dict["SUserN"] = result["code"]
+						Dict["SPassW"] = result["hash"]
+						Dict["validUntil"] = datetime.datetime.now() + datetime.timedelta(minutes = LOGIN_TIMEOUT_MINUTES)
+						Dict.Save()
+						Log.Info("Login complete")
+						return True
+					except Exception as e:
+						Log.Error("Error parsing login result: " + repr(e) + " - " + repr(result))
 
-			if "error" in result:
-				Log.Error(result["error"])
+					if "error" in result:
+						Log.Error(result["error"])
+					else:
+						Log.Info('Got login info')
+					Log.Error("Login failure: " + repr(result))
+				return MessageContainer("Error", "Login failure for " + url)
 			else:
-				Log.Info('Got login info')
-			Log.Error("Login failure: " + repr(result))
-		return MessageContainer("Error", "Login failure for " + url)
+				return MessageContainer("Error", "No login or password specified")
+		else:
+			return MessageContainer("Error", "No service selected")
 
 def resetCredentials():
 	Dict['SUserN'] = None
