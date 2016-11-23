@@ -110,12 +110,10 @@ def SearchShows(query):
 	showsListAll = Dict['showsList']
 	oc = ObjectContainer(title2 = "Search Results for {0}".format(query))
 	for i in range(1, 5):
-		Log.Info('sleeping 500ms for async schedule details to return')
-		Thread.Sleep(0.5)
 		if not channelsDict is None and not showsListAll is None:
 			break
-		#channelsDict = Dict['channelsDict']
-		#showsListAll = Dict['showsList']
+		Log.Info('sleeping 500ms for async schedule details to return')
+		Thread.Sleep(0.5)
 
 	currentTime = SmoothUtils.getCurrentTimeNative()
 	summaryText = ''
@@ -139,6 +137,10 @@ def SearchShows(query):
 		startTime = SmoothUtils.GetDateTimeNative(show['time'])
 		endTime = SmoothUtils.GetDateTimeNative(show['end_time'])
 		if endTime >= currentTime and (not nowOnly or startTime <= currentTime):
+			if startTime <= currentTime:
+				show['SORTER'] = "A" + show['name'] + show['time'] + show['quality']
+			else:
+				show['SORTER'] = "B" + show['time'] + show['name'] + show['quality']
 			if not nextOnly or (startTime > currentTime and startTime <= currentTime + datetime.timedelta(minutes = 90)):
 				if not hdOnly or show['quality'].lower() == '720p' or show['quality'].lower() == '1080i':
 					if len(query) == 0:
@@ -151,10 +153,7 @@ def SearchShows(query):
 		if keepShow:
 			showsList += [show]
 
-	if nowOnly:
-		showsList.sort(key = lambda x: (x['name'], x['quality'], x['time']))
-	else:
-		showsList.sort(key = lambda x: (x['time'], x['name'], x['quality']))
+	showsList.sort(key = lambda x: (x['SORTER']))
 
 	showCount = 0
 	for show in showsList:
@@ -227,11 +226,10 @@ def ChannelsMenu(url = None):
 	currentTime = SmoothUtils.getCurrentTimeNative()
 
 	for i in range(1, 5):
-		Log.Info('sleeping 500ms for async schedule details to return')
-		Thread.Sleep(0.5)
 		if not channelsDict is None:
 			break
-		#channelsDict = Dict['channelsDict']
+		Log.Info('sleeping 500ms for async schedule details to return')
+		Thread.Sleep(0.5)
 	
 	for channelNum in range(1, MAX_CHAN + 1):
 		if not channelsDict is None and str(channelNum) in channelsDict:
@@ -298,12 +296,10 @@ def LiveMenu(url = None):
 	currentTime = SmoothUtils.getCurrentTimeNative()
 
 	for i in range(1, 5):
-		Log.Info('sleeping 500ms for async schedule details to return')
-		Thread.Sleep(0.5)
 		if not channelsDict is None and not showsListAll is None:
 			break
-		#channelsDict = Dict['channelsDict']
-		#showsList = Dict['showsList']
+		Log.Info('sleeping 500ms for async schedule details to return')
+		Thread.Sleep(0.5)
 	
 	showsList = [i for i in showsListAll if SmoothUtils.GetDateTimeNative(i['time']) <= currentTime and SmoothUtils.GetDateTimeNative(i['end_time']) >= currentTime and (not Prefs['hdOnly'] or i['quality'].lower() == '720p' or i['quality'].lower() == '1080i')]
 	showsList.sort(key = lambda x: (x['category'], x['name'], x['quality'], x['time']))
@@ -366,12 +362,10 @@ def CategoriesMenu():
 	channelText = ''
 	
 	for i in range(1, 5):
-		if not channelsDict is None and not categoryDict is None:
-			break
 		Log.Info('sleeping 500ms for async schedule details to return')
 		Thread.Sleep(0.5)
-		#channelsDict = Dict['channelsDict']
-		#categoryDict = Dict['categoryDict']
+		if not channelsDict is None and not categoryDict is None:
+			break
 
 	for category in sorted(categoryDict):
 		thumb = SmoothUtils.GetChannelThumb(category = category, large = False)
@@ -392,12 +386,10 @@ def CategoryMenu(url = None):
 	currentTime = SmoothUtils.getCurrentTimeNative()
 
 	for i in range(1, 5):
-		Log.Info('sleeping 500ms for async schedule details to return')
-		Thread.Sleep(0.5)
 		if not channelsDict is None and not channelsDict is None:
 			break
-		#channelsDict = Dict['channelsDict']
-		#categoryDict = Dict['categoryDict']
+		Log.Info('sleeping 500ms for async schedule details to return')
+		Thread.Sleep(0.5)
 	
 	# filter and sort the shows for the category by start time
 	if url in categoryDict:
@@ -469,12 +461,10 @@ def ScheduleListMenu(startIndex = 0):
 	channelText = ''
 	
 	for i in range(1, 5):
-		Log.Info('sleeping 500ms for async schedule details to return')
-		Thread.Sleep(0.5)
 		if not channelsDict is None and not showsList is None:
 			break
-		#channelsDict = Dict['channelsDict']
-		#showsList = Dict['showsList']
+		Log.Info('sleeping 500ms for async schedule details to return')
+		Thread.Sleep(0.5)
 
 	parser = dateutil.parser()
 	currentTime = SmoothUtils.getCurrentTimeNative()

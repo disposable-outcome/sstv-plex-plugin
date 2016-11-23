@@ -30,7 +30,7 @@
 		"id": "mySearch",
 		"type": "text",
 		"label": " My Search",
-		"default": "NFL;NHL;NBA;World Football;NOW HD"
+		"default": "NFL;NHL;NBA;WorldFootball;NOW HD"
 	},
 	{
 		"id": "hdOnly",
