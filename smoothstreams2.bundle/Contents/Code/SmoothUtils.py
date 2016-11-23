@@ -162,7 +162,6 @@ def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
 	# these are going to get cached for future lookups
 	channelsDict = {}
 	showsList = []
-	#nowPlayingDict = []
 	categoryDict = {}
 	
 	for channelId in result:
@@ -173,7 +172,7 @@ def GetScheduleJson(OnlyGetNowPlaying=False, IgnorePast=False):
 		else:
 			myItems = None
 
-		channelsDict[channelId] = SsChannel(channel['channel_id'], channel['name'], channel['img'], myItems)
+		channelsDict[channelId] = SsChannel(channel['channel_id'], channel['name'], myItems)
 		
 		if " - " in channel['name']:
 			channelName = channel['name'].split(" - ")[1]
@@ -333,10 +332,9 @@ def IsShowNowPlaying(show):
 
 class SsChannel:
 	''' Exposes features useful for a specific channel and its shows '''
-	def __init__(self, id, name, img, items):
+	def __init__(self, id, name, items):
 		self.channel_id = id
 		self.name = name
-		self.img = img
 		self.items = items
 
 	def NowPlaying(self):
